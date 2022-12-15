@@ -42,13 +42,15 @@ export class Module {
     );
   }
 
-  genVertices(): number {
-    return this.ffi.gen()
+  initState() {
+    this.ffi.gen()
   }
 
-  getVerticesData(ptr: number): ArrayBuffer {
-    const a = this.ffi.vec_data(ptr),
-          b = a + this.ffi.vec_len(ptr) * 12
-    return this.memory.buffer.slice(a, b)
+  update() {
+    this.ffi.update()
+  }
+
+  getVerticesData(): ArrayBuffer {
+    return new Uint8Array(this.memory.buffer, this.ffi.state_data(), this.ffi.state_len() * 12)
   }
 };

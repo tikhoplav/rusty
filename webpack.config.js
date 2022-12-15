@@ -7,8 +7,11 @@ module.exports = {
   devServer: {
     allowedHosts: "all",
     client: {
-        webSocketURL: 'ws://0.0.0.0/ws',
+      webSocketURL: 'ws://0.0.0.0/ws',
     },
+    watchFiles: [
+      "./target/wasm32-unknown-unknown/release/rusty.wasm"
+    ],
   },
   plugins: [
     new HtmlWebpackPlugin({

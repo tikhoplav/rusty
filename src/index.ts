@@ -52,12 +52,19 @@ void main() {
   gl.enableVertexAttribArray(1)
 
   function resize(): void {
+    const { innerWidth: width, innerHeight: height} = window;
+    gl.canvas.width = width;
+    gl.canvas.height = height;
     gl.useProgram(program)
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
-    gl.uniform2f(gl.getUniformLocation(program, "uResolution"), gl.canvas.width, gl.canvas.height)
+    gl.viewport(0, 0, width, height)
+    gl.uniform2f(gl.getUniformLocation(program, "uResolution"), width, height)
   }
 
   function draw(buffer: ArrayBuffer): void {
+    gl.clearColor(0.1, 0.1, 0.1, 1)
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.DEPTH_TEST);
+
     gl.useProgram(program)
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
     gl.bindVertexArray(vao)
@@ -70,27 +77,19 @@ void main() {
 }
 
 loadModule("rusty.wasm")
-  .then(rusty => {    
-    console.log(rusty.greet())
+  .then(rusty => {
 
-    const vPtr = rusty.genVertices()
-    const vData = rusty.getVerticesData(vPtr)
+    rusty.initState()
+    const data = rusty.getVerticesData();
 
     const { resize, draw } = spriteRenderer(gl);
-
+    window.onresize = resize    
     const render = () => {
-      const { innerWidth: width, innerHeight: height} = window;
-      gl.canvas.width = width;
-      gl.canvas.height = height;
-
-      gl.clearColor(0.1, 0.1, 0.1, 1)
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-      gl.enable(gl.DEPTH_TEST);
-
-      resize()
-      draw(vData)
+      rusty.update()
+      draw(data)
+      requestAnimationFrame(render);
     }
-
-    window.onresize = render
+    
+    resize()
     render()
   })
