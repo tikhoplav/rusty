@@ -1,0 +1,17 @@
+[package]
+name = "rusty-client"
+version = "0.1.0"
+authors = ["Vitaly Tikhoplav <tikhoplavspb@gmail.com>"]
+edition = "2021"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib"]
+
+[profile.release]
+# Link-time optimization increase performance
+# increasing compile time.
+lto = "thin"
+
+# Tell `rustc` to optimize for small code size.
+opt-level = "s"

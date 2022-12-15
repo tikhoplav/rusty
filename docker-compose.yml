@@ -1,0 +1,22 @@
+version: "3.9"
+
+services:
+  app:
+    image: node:19-alpine
+    working_dir: /app
+    volumes:
+      - ./:/app
+    ports:
+      - 80:8080
+    command: ['yarn', 'dev', '--host', '0.0.0.0', '--port', '8080']
+
+  rust:
+    build:
+      context: .
+    image: rusty:dev
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - ./cargo.cache:/usr/local/cargo/registry
+    command: ['cargo', 'watch', '-w', 'src', '-i', '**/*.ts', '-x', 'build --release']
+    
