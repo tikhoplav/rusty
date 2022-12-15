@@ -1,4 +1,5 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
   entry: './src/index.ts',
@@ -13,6 +14,11 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './public/index.html'
     }),
+    new CopyPlugin({
+      patterns: [
+        "./target/wasm32-unknown-unknown/release/rusty.wasm"
+      ],
+    }),
   ],
   module: {
     rules: [
@@ -20,13 +26,10 @@ module.exports = {
         test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/,
-      }
+      },
     ],
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
-  },
-  experiments: {
-    asyncWebAssembly: true,
   },
 }

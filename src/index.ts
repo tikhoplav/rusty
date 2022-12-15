@@ -1,45 +1,34 @@
-interface RustFFI {
-  vec_data(ptr: number): number;
-  vec_len(ptr: number): number;
-}
+import Rusty, { loadModule } from "./rusty";
 
-interface Wasm extends RustFFI{
-  memory: WebAssembly.Memory;
-  [key: string]: any;
-}
+// require("../target/wasm32-unknown-unknown/release/rusty_client.wasm")
+//   .then((wasm: Module) => {
+//     const rusty = new Rusty(wasm);
 
-const WasmAPI = (wasm: Wasm) => ({
-  vecBuffer: (ptr: number): [
-    ArrayBuffer,
-    number,
-    number,
-  ] => [
-    wasm.memory.buffer,
-    wasm.vec_data(ptr),
-    wasm.vec_len(ptr),
-  ],
-})
+//     const decoder = new TextDecoder('utf-8');
 
-require("../target/wasm32-unknown-unknown/release/rusty_client.wasm")
-  .then((wasm: Wasm) => {
-    const { vecBuffer } = WasmAPI(wasm);
-    const decoder = new TextDecoder('utf-8');
+//     const greetPtr = (wasm.greet as Function)();
+//     const greet = decoder.decode(
+//       new Uint8Array(...rusty.vecBuffer(greetPtr))
+//     );
+//     console.log(greetPtr, greet);
+//     (wasm.destroy as Function)(greetPtr);
 
-    const greetPtr = wasm.greet();
-    const greet = decoder.decode(
-      new Uint8Array(...vecBuffer(greetPtr))
-    );
-    console.log(greetPtr, greet);
-    wasm.destroy(greetPtr);
+//     const motdPtr = (wasm.motd as Function)();
+//     const motd = decoder.decode(
+//       new Uint8Array(...rusty.vecBuffer(motdPtr))
+//     );
+//     console.log(motdPtr, motd);
+//     (wasm.destroy as Function)(motdPtr);
 
-    const motdPtr = wasm.motd();
-    const motd = decoder.decode(
-      new Uint8Array(...vecBuffer(motdPtr))
-    );
-    console.log(motdPtr, motd);
-    wasm.destroy(motdPtr);
+//     const genPtr = (wasm.gen as Function)();
+//     const gen = new Uint32Array(...rusty.vecBuffer(genPtr));
+//     console.log(gen);
+//   })
 
-    const genPtr = wasm.gen();
-    const gen = new Uint32Array(...vecBuffer(genPtr));
-    console.log(gen);
+// const rusty = require("../target/wasm32-unknown-unknown/release/rusty_client.wasm");
+// 
+
+loadModule("rusty.wasm")
+  .then(rusty => {    
+    console.log(rusty.greet());
   })

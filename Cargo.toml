@@ -1,5 +1,5 @@
 [package]
-name = "rusty-client"
+name = "rusty"
 version = "0.1.0"
 authors = ["Vitaly Tikhoplav <tikhoplavspb@gmail.com>"]
 edition = "2021"

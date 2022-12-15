@@ -1,6 +1,6 @@
 #[no_mangle]
 pub extern fn greet() -> *mut String {
-    let s = String::from("Hello, World!!");
+    let s = String::from("Hello, World!!!");
     Box::into_raw(Box::new(s))
 }
 
