@@ -41,4 +41,14 @@ export class Module {
       new Uint8Array(...this.vecBuffer(this.ffi.greet()))
     );
   }
+
+  genVertices(): number {
+    return this.ffi.gen()
+  }
+
+  getVerticesData(ptr: number): ArrayBuffer {
+    const a = this.ffi.vec_data(ptr),
+          b = a + this.ffi.vec_len(ptr) * 12
+    return this.memory.buffer.slice(a, b)
+  }
 };
