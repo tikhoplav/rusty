@@ -9,15 +9,13 @@ const spriteRenderer = function (gl: WebGL2RenderingContext) {
   const vertexShaderSource = `#version 300 es
 uniform vec2 uResolution;
 
-layout (location = 0) in vec2 aPosition;
+layout (location = 0) in vec4 aPosition;
 layout (location = 1) in vec4 AColor;
 
 out vec4 vColor;
 
 void main() {
-  vec2 clipSpace = aPosition * 2.0 / uResolution;
-
-  gl_Position = vec4(clipSpace, 0, 1);
+  gl_Position = aPosition * 2.0 / vec4(uResolution, 1, 1);
   vColor = AColor;
 }`
 
@@ -36,44 +34,35 @@ void main() {
 
   const vertexBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
-  gl.bufferData(gl.ARRAY_BUFFER, 36, gl.DYNAMIC_DRAW)
+  gl.bufferData(gl.ARRAY_BUFFER, 60, gl.DYNAMIC_DRAW)
 
   const vao = gl.createVertexArray()
   gl.bindVertexArray(vao)
 
   // Setup position attribute, should read from buffer
   // as pairs of float coordinates. Total bytes per vertex is 12.
-  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 12, 0)
+  gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 20, 0)
   gl.enableVertexAttribArray(0)
 
-  // Setup color attribute, should read from buffer as a vector
+  // Setup color attribute, should read from buffer1024 as a vector
   // of 4 bytes. Total bytes per vertex is 12.
-  gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 12, 8)
+  gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 20, 16)
   gl.enableVertexAttribArray(1)
 
-  function resize(): void {
-    const { innerWidth: width, innerHeight: height} = window;
-    gl.canvas.width = width;
-    gl.canvas.height = height;
+  function resize(width: number, height: number): void {    
     gl.useProgram(program)
     gl.viewport(0, 0, width, height)
     gl.uniform2f(gl.getUniformLocation(program, "uResolution"), width, height)
   }
 
-  function draw(buffer: ArrayBuffer): void {
-    gl.clearColor(0.1, 0.1, 0.1, 1)
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.enable(gl.DEPTH_TEST);
-
+  function update(buffer: ArrayBuffer): void {
     gl.useProgram(program)
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
     gl.bindVertexArray(vao)
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, buffer)
-
-    gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
 
-  return { draw, resize }
+  return { update, resize }
 }
 
 loadModule("rusty.wasm")
@@ -82,14 +71,29 @@ loadModule("rusty.wasm")
     rusty.initState()
     const data = rusty.getVerticesData();
 
-    const { resize, draw } = spriteRenderer(gl);
-    window.onresize = resize    
+    const { resize, update } = spriteRenderer(gl)
+
+    const onresize = () => {
+      const { innerWidth: width, innerHeight: height} = window
+      gl.canvas.width = width
+      gl.canvas.height = height
+      resize(width, height)
+    }
+
     const render = () => {
       rusty.update()
-      draw(data)
-      requestAnimationFrame(render);
+
+      gl.clearColor(0.1, 0.1, 0.1, 1)
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+      gl.enable(gl.DEPTH_TEST)
+
+      update(data)
+      gl.drawArrays(gl.TRIANGLES, 0, 3)
+
+      requestAnimationFrame(render)
     }
     
-    resize()
+    window.onresize = onresize
+    onresize()
     render()
   })

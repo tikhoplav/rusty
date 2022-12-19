@@ -1,98 +1,65 @@
+mod color;
+mod state;
+mod vec4;
+
+use std::f64::consts::{FRAC_PI_2, FRAC_PI_3};
+use crate::color::Color;
+use crate::state::{State, Vertex};
+use crate::vec4::Vec4;
 use std::sync::Mutex;
-
-#[no_mangle]
-pub unsafe extern fn vec_data(v: *mut Vec<u8>) -> *const u8 {
-    v.as_ref().expect("Not available").as_ptr()
-}
-
-#[no_mangle]
-pub unsafe extern fn vec_len(v: *mut Vec<u8>) -> usize {
-    v.as_ref().expect("Not available").len()
-}
-
-#[no_mangle]
-pub unsafe extern fn destroy(s: *mut Vec<u8>) {
-    drop(Box::from_raw(s))
-}
-
-#[no_mangle]
-pub extern fn greet() -> *mut String {
-    let s = String::from(r#"
-    Have a nice day, developer!
-
-    My name is Rusty and I'm here to bring you joi.
-    I will help you on your way of bringing the best
-    game to live.
-
-    Be patient and everything desired will come true.
-"#);
-    Box::into_raw(Box::new(s))
-}
-
-#[repr(C)]
-pub struct Vector(f32, f32);
-
-#[repr(C)]
-pub struct Color(u8, u8, u8, u8);
-
-impl Color {
-    pub fn rotate(&mut self, a: Color) {
-        self.0 = ((self.0 as u32 + a.0 as u32) % 256) as u8;
-        self.1 = ((self.1 as u32 + a.1 as u32) % 256) as u8;
-        self.2 = ((self.2 as u32 + a.2 as u32) % 256) as u8;
-        self.3 = ((self.3 as u32 + a.3 as u32) % 256) as u8;
-    }
-}
-
-#[repr(C)]
-pub struct Vertex(Vector, Color);
 
 // State is stored as a global variable, since it has to be used each update
 // without a reference passed over FFI.
-static STATE: Mutex<Vec<Vertex>> = Mutex::new(Vec::new());
+static STATE: Mutex<State> = Mutex::new(State {
+    vertices: Vec::new(),
+    count: 0,
+});
 
 #[no_mangle]
-pub extern fn gen() {
-    let v = &mut *STATE.lock().unwrap();
-    
-    v.push(Vertex (
-        Vector (0.0, 230.940107676),
-        Color (200, 0, 0, 255),
-    ));
-
-    v.push(Vertex (
-        Vector (200.0, -115.470053838),
-        Color (0, 200, 0, 255),
-    ));
-
-    v.push(Vertex (
-        Vector (-200.0, -115.470053838),
-        Color (0, 0, 200, 255),
-    ));
-}
-
-#[no_mangle]
-pub extern fn state_data() -> *const Vertex {
-    let v: &Vec<Vertex> = &*STATE.lock().unwrap();
+pub extern "C" fn state_data() -> *const Vertex {
+    let v = &(&*STATE.lock().unwrap()).vertices;
     <Vec<Vertex> as AsRef<Vec<Vertex>>>::as_ref(v).as_ptr()
 }
 
 #[no_mangle]
-pub extern fn state_len() -> usize {
-    let v: &Vec<Vertex> = &*STATE.lock().unwrap();
+pub extern "C" fn state_len() -> usize {
+    let v = &(&*STATE.lock().unwrap()).vertices;
     <Vec<Vertex> as AsRef<Vec<Vertex>>>::as_ref(v).len()
 }
 
 #[no_mangle]
-pub extern fn update() {
-    let v = &mut *STATE.lock().unwrap();
+pub extern "C" fn gen() {
+    let state = &mut *STATE.lock().unwrap();
+
+    state.vertices.push(Vertex(
+        Vec4(0.0, 346.410161514, 0.0, 1.0),
+        Color(255, 0, 0, 255),
+    ));
+
+    state.vertices.push(Vertex(
+        Vec4(400.0, -346.410161514, 0.0, 1.0),
+        Color(0, 255, 0, 255),
+    ));
+
+    state.vertices.push(Vertex(
+        Vec4(-400.0, -346.410161514, 0.0, 1.0),
+        Color(0, 0, 255, 255),
+    ));
+}
+
+#[no_mangle]
+pub extern "C" fn update() {
+    let state = &mut *STATE.lock().unwrap();
+    let v = &mut state.vertices;
+
     for (i, vertex) in v.iter_mut().enumerate() {
-        let c = match i {
-            0 => Color(1, 0, 0, 0),
-            1 => Color(0, 1, 0, 0),
-            2 => Color(0, 0, 1, 0),
-            _ => Color(0, 0, 0, 0),
-        };
-        vertex.1.rotate(c);
+        vertex.1 = Vec4(
+            127.0 - 127.0 * ((state.count as f64) / 120.0 + (i as f64) * FRAC_PI_3).cos() as f32,
+            127.0 - 127.0 * ((state.count as f64) / 60.0 + FRAC_PI_2 + (i as f64) * FRAC_PI_3).sin() as f32,
+            127.0 - 127.0 * ((state.count as f64) / 120.0 + (i as f64) * FRAC_PI_3).sin() as f32,
+            255.0
+        ).into();
     }
+
+    state.count += 1;
 }
