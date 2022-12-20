@@ -1,8 +1,8 @@
 use crate::color::Color;
-use crate::vec4::Vec4;
+use crate::vec3::Vec3;
 
 #[repr(C)]
-pub struct Vertex(pub Vec4, pub Color);
+pub struct Vertex(pub Vec3, pub Color);
 
 #[repr(C)]
 pub struct State {

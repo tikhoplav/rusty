@@ -9,13 +9,13 @@ const spriteRenderer = function (gl: WebGL2RenderingContext) {
   const vertexShaderSource = `#version 300 es
 uniform vec2 uResolution;
 
-layout (location = 0) in vec4 aPosition;
+layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec4 AColor;
 
 out vec4 vColor;
 
 void main() {
-  gl_Position = aPosition * 2.0 / vec4(uResolution, 1, 1);
+  gl_Position = vec4(aPosition, 1) * 2.0 / vec4(uResolution, 1, 1);
   vColor = AColor;
 }`
 
@@ -41,12 +41,12 @@ void main() {
 
   // Setup position attribute, should read from buffer
   // as pairs of float coordinates. Total bytes per vertex is 12.
-  gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 20, 0)
+  gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 16, 0)
   gl.enableVertexAttribArray(0)
 
   // Setup color attribute, should read from buffer1024 as a vector
   // of 4 bytes. Total bytes per vertex is 12.
-  gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 20, 16)
+  gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 16, 12)
   gl.enableVertexAttribArray(1)
 
   function resize(width: number, height: number): void {    

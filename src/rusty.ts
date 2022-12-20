@@ -51,6 +51,6 @@ export class Module {
   }
 
   getVerticesData(): ArrayBuffer {
-    return new Uint8Array(this.memory.buffer, this.ffi.state_data(), this.ffi.state_len() * 20)
+    return new Uint8Array(this.memory.buffer, this.ffi.state_data(), this.ffi.state_len() * 16)
   }
 };

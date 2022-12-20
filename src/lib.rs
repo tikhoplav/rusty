@@ -1,10 +1,14 @@
-mod color;
-mod state;
-mod vec4;
+pub mod approx;
+pub mod color;
+pub mod mat4;
+pub mod vec3;
+pub mod vec4;
+pub mod state;
 
 use std::f64::consts::{FRAC_PI_2, FRAC_PI_3};
 use crate::color::Color;
 use crate::state::{State, Vertex};
+use crate::vec3::Vec3;
 use crate::vec4::Vec4;
 use std::sync::Mutex;
 
@@ -32,17 +36,17 @@ pub extern "C" fn gen() {
     let state = &mut *STATE.lock().unwrap();
 
     state.vertices.push(Vertex(
-        Vec4(0.0, 346.410161514, 0.0, 1.0),
+        Vec3(0.0, 346.410161514, 0.0),
         Color(255, 0, 0, 255),
     ));
 
     state.vertices.push(Vertex(
-        Vec4(400.0, -346.410161514, 0.0, 1.0),
+        Vec3(400.0, -346.410161514, 0.0),
         Color(0, 255, 0, 255),
     ));
 
     state.vertices.push(Vertex(
-        Vec4(-400.0, -346.410161514, 0.0, 1.0),
+        Vec3(-400.0, -346.410161514, 0.0),
         Color(0, 0, 255, 255),
     ));
 }
