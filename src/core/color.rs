@@ -1,4 +1,4 @@
-use crate::vec4::Vec4;
+use crate::core::Vec4;
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -27,8 +27,7 @@ impl Into<Vec4> for Color {
 
 #[cfg(test)]
 mod tests {
-    use crate::color::Color;
-    use crate::vec4::Vec4;
+    use crate::core::{Color, Vec4};
     use std::fmt::{Debug, Formatter, Result};
 
     impl Debug for Color {

@@ -4,7 +4,7 @@ extern crate test;
 
 #[cfg(test)]
 mod tests {
-    use rusty::approx::{Approx, EPS};
+    use rusty::core::{Approx, EPS};
     use test::{black_box, Bencher};
 
     #[bench]

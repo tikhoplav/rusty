@@ -1,5 +1,4 @@
-use crate::approx::Approx;
-use crate::vec4::Vec4;
+use crate::core::{Approx, Vec4};
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
 /// Vec3 is a data structure that represent 3-component vector. It can be used
@@ -147,7 +146,7 @@ impl Vec3 {
 
 #[cfg(test)]
 mod tests {
-    use crate::vec3::Vec3;
+    use crate::core::{Vec3, Vec4};
     use std::fmt::{Debug, Formatter, Result};
 
     impl Debug for Vec3 {
@@ -168,6 +167,20 @@ mod tests {
         let a = Vec3(0.32, 0.64, 0.0);
         let b = a;
         assert_eq!(a, b);
+    }
+
+    #[test]
+    fn from_vec4() {
+        let a = Vec4(1.1, 3.4, 3.5, 3.8);
+        let b = Vec3(1.1, 3.4, 3.5);
+        assert_eq!(b, a.into());
+    }
+
+    #[test]
+    fn into_vec4() {
+        let a = Vec3(1.0, 2.2, 3.3);
+        let b = Vec4(1.0, 2.2, 3.3, 1.0);
+        assert_eq!(b, a.into());
     }
 
     #[test]

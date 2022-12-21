@@ -1,4 +1,4 @@
-pub const EPS: f32 = 0.0001;
+pub const EPS: f32 = 0.01;
 
 pub trait Approx {
     fn approx_eq(self, rhs: Self) -> bool;
@@ -19,7 +19,7 @@ impl Approx for f32 {
         let mut i: u32 = y.to_bits();
         i = 0x5f3759df_u32 - (i >> 1);
         y = f32::from_bits(i);
-        y = y * (1.5 - x2 * y * y);
+        // y = y * (1.5 - x2 * y * y);
         y * (1.5 - x2 * y * y)
     }
 
@@ -31,7 +31,7 @@ impl Approx for f32 {
 
 #[cfg(test)]
 mod tests {
-    use crate::approx::{Approx, EPS};
+    use crate::core::{Approx, EPS};
 
     #[test]
     fn approx_eq() {

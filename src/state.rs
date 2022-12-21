@@ -1,5 +1,4 @@
-use crate::color::Color;
-use crate::vec3::Vec3;
+use crate::core::{Color, Vec3};
 
 #[repr(C)]
 pub struct Vertex(pub Vec3, pub Color);

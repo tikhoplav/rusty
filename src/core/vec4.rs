@@ -1,4 +1,4 @@
-use crate::approx::Approx;
+use crate::core::Approx;
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
 /// Vec4 is a data structure that represent 4-component vector. It can be used
@@ -136,7 +136,7 @@ impl Vec4 {
 
 #[cfg(test)]
 mod tests {
-    use crate::vec4::Vec4;
+    use crate::core::Vec4;
     use std::fmt::{Debug, Formatter, Result};
 
     impl Debug for Vec4 {
