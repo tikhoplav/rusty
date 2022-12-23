@@ -35,7 +35,7 @@ void main() {
 
   const vertexBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
-  gl.bufferData(gl.ARRAY_BUFFER, 60, gl.DYNAMIC_DRAW)
+  gl.bufferData(gl.ARRAY_BUFFER, 16 * 1024, gl.DYNAMIC_DRAW)
 
   const vao = gl.createVertexArray()
   gl.bindVertexArray(vao)
@@ -50,38 +50,32 @@ void main() {
   gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 16, 12)
   gl.enableVertexAttribArray(1)
 
-  function resize(viewMatrix: Float32Array): void {    
+  function update(buffer: ArrayBuffer, viewMatrix: Float32Array): void {
     gl.useProgram(program)
-    // gl.viewport(0, 0, width, height)
     gl.uniformMatrix4fv(gl.getUniformLocation(program, "uMatrix"), false, viewMatrix)
-  }
-
-  function update(buffer: ArrayBuffer): void {
-    gl.useProgram(program)
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer)
     gl.bindVertexArray(vao)
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, buffer)
   }
 
-  return { update, resize }
+  return { update }
 }
 
 loadModule("rusty.wasm")
   .then(rusty => {
 
     rusty.initState()
-    const view = rusty.viewData;
+    const viewMatrix = rusty.viewMatrix;
     const data = rusty.verticesData;
 
-    const { resize, update } = spriteRenderer(gl)
+    const { update } = spriteRenderer(gl)
 
     const onresize = () => {
       const { innerWidth: width, innerHeight: height} = window
       gl.canvas.width = width
       gl.canvas.height = height
       gl.viewport(0, 0, width, height)
-      rusty.aspectRatio = width / height;
-      resize(view)
+      rusty.screen = { width, height };
     }
 
     const render = () => {
@@ -91,11 +85,20 @@ loadModule("rusty.wasm")
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
       gl.enable(gl.DEPTH_TEST)
 
-      update(data)
-      gl.drawArrays(gl.TRIANGLES, 0, 3)
+      update(data, viewMatrix)
+      gl.drawArrays(gl.TRIANGLES, 0, 6)
 
       requestAnimationFrame(render)
     }
+
+    let dragging = false
+    canvas.onmousedown = (e) => { dragging = true }
+    canvas.onmouseup = () => { dragging = false }
+    canvas.onmousemove = e => {
+      if (!dragging) return
+      rusty.rotateCamera(e.movementX)
+    }
+
     
     window.onresize = onresize
     onresize()

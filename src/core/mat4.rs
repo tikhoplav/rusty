@@ -1,6 +1,6 @@
 use crate::core::{Vec3, Vec4};
-use std::ops::{Mul, Div};
 use std::f32::consts::FRAC_PI_2;
+use std::ops::{Div, Mul};
 
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -21,10 +21,22 @@ impl Mul<Mat4> for Mat4 {
     fn mul(self, rhs: Self) -> Self {
         Self(
             Vec4(
-                self.0.0 * rhs.0.0 + self.0.1 * rhs.1.0 + self.0.2 * rhs.2.0 + self.0.3 * rhs.3.0,
-                self.0.0 * rhs.0.1 + self.0.1 * rhs.1.1 + self.0.2 * rhs.2.1 + self.0.3 * rhs.3.1,
-                self.0.0 * rhs.0.2 + self.0.1 * rhs.1.2 + self.0.2 * rhs.2.2 + self.0.3 * rhs.3.2,
-                self.0.0 * rhs.0.3 + self.0.1 * rhs.1.3 + self.0.2 * rhs.2.3 + self.0.3 * rhs.3.3,
+                self.0 .0 * rhs.0 .0
+                    + self.0 .1 * rhs.1 .0
+                    + self.0 .2 * rhs.2 .0
+                    + self.0 .3 * rhs.3 .0,
+                self.0 .0 * rhs.0 .1
+                    + self.0 .1 * rhs.1 .1
+                    + self.0 .2 * rhs.2 .1
+                    + self.0 .3 * rhs.3 .1,
+                self.0 .0 * rhs.0 .2
+                    + self.0 .1 * rhs.1 .2
+                    + self.0 .2 * rhs.2 .2
+                    + self.0 .3 * rhs.3 .2,
+                self.0 .0 * rhs.0 .3
+                    + self.0 .1 * rhs.1 .3
+                    + self.0 .2 * rhs.2 .3
+                    + self.0 .3 * rhs.3 .3,
             ),
             Vec4(
                 self.1 .0 * rhs.0 .0
@@ -84,19 +96,34 @@ impl Mul<Mat4> for Mat4 {
     }
 }
 
-
 impl Mul<Vec4> for Mat4 {
     type Output = Vec4;
 
-    /// Return a vector transformed by a matrix.
+    /// Return a vector transformed by the matrix.
     #[inline]
     fn mul(self, rhs: Vec4) -> Vec4 {
         Vec4(
-            rhs.0 * self.0.0 + rhs.1 * self.0.1 + rhs.2 * self.0.2 + rhs.3 * self.0.3,
-            rhs.0 * self.1.0 + rhs.1 * self.1.1 + rhs.2 * self.1.2 + rhs.3 * self.1.3,
-            rhs.0 * self.2.0 + rhs.1 * self.2.1 + rhs.2 * self.2.2 + rhs.3 * self.2.3,
-            rhs.0 * self.3.0 + rhs.1 * self.3.1 + rhs.2 * self.3.2 + rhs.3 * self.3.3,
+            rhs.0 * self.0 .0 + rhs.1 * self.0 .1 + rhs.2 * self.0 .2 + rhs.3 * self.0 .3,
+            rhs.0 * self.1 .0 + rhs.1 * self.1 .1 + rhs.2 * self.1 .2 + rhs.3 * self.1 .3,
+            rhs.0 * self.2 .0 + rhs.1 * self.2 .1 + rhs.2 * self.2 .2 + rhs.3 * self.2 .3,
+            rhs.0 * self.3 .0 + rhs.1 * self.3 .1 + rhs.2 * self.3 .2 + rhs.3 * self.3 .3,
         )
+    }
+}
+
+impl Mul<Vec3> for Mat4 {
+    type Output = Vec3;
+
+    /// Return a vector transformed by the matrix, a short cut of  
+    /// Vec4 -> Vec3 and backwards conversion.
+    #[inline]
+    fn mul(self, rhs: Vec3) -> Vec3 {
+        let w = rhs.0 * self.3 .0 + rhs.1 * self.3 .1 + rhs.2 * self.3 .2 + self.3 .3;
+        Vec3(
+            rhs.0 * self.0 .0 + rhs.1 * self.0 .1 + rhs.2 * self.0 .2 + self.0 .3,
+            rhs.0 * self.1 .0 + rhs.1 * self.1 .1 + rhs.2 * self.1 .2 + self.1 .3,
+            rhs.0 * self.2 .0 + rhs.1 * self.2 .1 + rhs.2 * self.2 .2 + self.2 .3,
+        ) / w
     }
 }
 
@@ -106,12 +133,7 @@ impl Mul<f32> for Mat4 {
     /// Return a result of multiplication of the matrix by a scalar.
     #[inline]
     fn mul(self, rhs: f32) -> Self {
-        Self(
-            self.0 * rhs,
-            self.1 * rhs,
-            self.2 * rhs,
-            self.3 * rhs,
-        )
+        Self(self.0 * rhs, self.1 * rhs, self.2 * rhs, self.3 * rhs)
     }
 }
 
@@ -121,15 +143,9 @@ impl Div<f32> for Mat4 {
     /// Return a result of division of the matrix by a scalar.
     #[inline]
     fn div(self, rhs: f32) -> Self {
-        Self(
-            self.0 / rhs,
-            self.1 / rhs,
-            self.2 / rhs,
-            self.3 / rhs,
-        )
+        Self(self.0 / rhs, self.1 / rhs, self.2 / rhs, self.3 / rhs)
     }
 }
-
 
 impl Mat4 {
     #[inline]
@@ -487,19 +503,18 @@ impl Mat4 {
     pub fn decompose(self) -> (Vec3, Vec3, Vec4) {
         let d = self.det();
 
-        let t = Vec3(self.3.0, self.3.1, self.3.2);
+        let t = Vec3(self.3 .0, self.3 .1, self.3 .2);
         let s = Vec3(
-            if d > 0.0 { self.0.len() } else { -1.0 * self.0.len() },
+            if d > 0.0 {
+                self.0.len()
+            } else {
+                -1.0 * self.0.len()
+            },
             self.1.len(),
             self.2.len(),
         );
 
-        let r = Mat4(
-            self.0 / s.0,
-            self.1 / s.1,
-            self.2 / s.2,
-            self.3,
-        ).to_quat();
+        let r = Mat4(self.0 / s.0, self.1 / s.1, self.2 / s.2, self.3).to_quat();
 
         (t, s, r)
     }
@@ -521,108 +536,108 @@ impl Mat4 {
         let d = self.det();
         Self(
             Vec4(
-                self.1.1 * self.2.2 * self.3.3
-                    + self.1.2 * self.2.3 * self.3.1
-                    + self.1.3 * self.2.1 * self.3.2
-                    - self.1.3 * self.2.2 * self.3.1
-                    - self.1.2 * self.2.1 * self.3.3
-                    - self.1.1 * self.2.3 * self.3.2,
-                - self.0.1 * self.2.2 * self.3.3
-                    - self.0.2 * self.2.3 * self.3.1
-                    - self.0.3 * self.2.1 * self.3.2
-                    + self.0.3 * self.2.2 * self.3.1
-                    + self.0.2 * self.2.1 * self.3.3
-                    + self.0.1 * self.2.3 * self.3.2,
-                self.0.1 * self.1.2 * self.3.3
-                    + self.0.2 * self.1.3 * self.3.1
-                    + self.0.3 * self.1.1 * self.3.2
-                    - self.0.3 * self.1.2 * self.3.1
-                    - self.0.2 * self.1.1 * self.3.3
-                    - self.0.1 * self.1.3 * self.3.2,
-                - self.0.1 * self.1.2 * self.2.3
-                    - self.0.2 * self.1.3 * self.2.1
-                    - self.0.3 * self.1.1 * self.2.2
-                    + self.0.3 * self.1.2 * self.2.1
-                    + self.0.2 * self.1.1 * self.2.3
-                    + self.0.1 * self.1.3 * self.2.2,
+                self.1 .1 * self.2 .2 * self.3 .3
+                    + self.1 .2 * self.2 .3 * self.3 .1
+                    + self.1 .3 * self.2 .1 * self.3 .2
+                    - self.1 .3 * self.2 .2 * self.3 .1
+                    - self.1 .2 * self.2 .1 * self.3 .3
+                    - self.1 .1 * self.2 .3 * self.3 .2,
+                -self.0 .1 * self.2 .2 * self.3 .3
+                    - self.0 .2 * self.2 .3 * self.3 .1
+                    - self.0 .3 * self.2 .1 * self.3 .2
+                    + self.0 .3 * self.2 .2 * self.3 .1
+                    + self.0 .2 * self.2 .1 * self.3 .3
+                    + self.0 .1 * self.2 .3 * self.3 .2,
+                self.0 .1 * self.1 .2 * self.3 .3
+                    + self.0 .2 * self.1 .3 * self.3 .1
+                    + self.0 .3 * self.1 .1 * self.3 .2
+                    - self.0 .3 * self.1 .2 * self.3 .1
+                    - self.0 .2 * self.1 .1 * self.3 .3
+                    - self.0 .1 * self.1 .3 * self.3 .2,
+                -self.0 .1 * self.1 .2 * self.2 .3
+                    - self.0 .2 * self.1 .3 * self.2 .1
+                    - self.0 .3 * self.1 .1 * self.2 .2
+                    + self.0 .3 * self.1 .2 * self.2 .1
+                    + self.0 .2 * self.1 .1 * self.2 .3
+                    + self.0 .1 * self.1 .3 * self.2 .2,
             ),
             Vec4(
-                - self.1.0 * self.2.2 * self.3.3
-                    - self.1.2 * self.2.3 * self.3.0
-                    - self.1.3 * self.2.0 * self.3.2
-                    + self.1.3 * self.2.2 * self.3.0
-                    + self.1.2 * self.2.0 * self.3.3
-                    + self.1.0 * self.2.3 * self.3.2,
-                self.0.0 * self.2.2 * self.3.3
-                    + self.0.2 * self.2.3 * self.3.0
-                    + self.0.3 * self.2.0 * self.3.2
-                    - self.0.3 * self.2.2 * self.3.0
-                    - self.0.2 * self.2.0 * self.3.3
-                    - self.0.0 * self.2.3 * self.3.2,
-                - self.0.0 * self.1.2 * self.3.3
-                    - self.0.2 * self.1.3 * self.3.0
-                    - self.0.3 * self.1.0 * self.3.2
-                    + self.0.3 * self.1.2 * self.3.0
-                    + self.0.2 * self.1.0 * self.3.3
-                    + self.0.0 * self.1.3 * self.3.2,
-                self.0.0 * self.1.2 * self.2.3
-                    + self.0.2 * self.1.3 * self.2.0
-                    + self.0.3 * self.1.0 * self.2.2
-                    - self.0.3 * self.1.2 * self.2.0
-                    - self.0.2 * self.1.0 * self.2.3
-                    - self.0.0 * self.1.3 * self.2.2,
+                -self.1 .0 * self.2 .2 * self.3 .3
+                    - self.1 .2 * self.2 .3 * self.3 .0
+                    - self.1 .3 * self.2 .0 * self.3 .2
+                    + self.1 .3 * self.2 .2 * self.3 .0
+                    + self.1 .2 * self.2 .0 * self.3 .3
+                    + self.1 .0 * self.2 .3 * self.3 .2,
+                self.0 .0 * self.2 .2 * self.3 .3
+                    + self.0 .2 * self.2 .3 * self.3 .0
+                    + self.0 .3 * self.2 .0 * self.3 .2
+                    - self.0 .3 * self.2 .2 * self.3 .0
+                    - self.0 .2 * self.2 .0 * self.3 .3
+                    - self.0 .0 * self.2 .3 * self.3 .2,
+                -self.0 .0 * self.1 .2 * self.3 .3
+                    - self.0 .2 * self.1 .3 * self.3 .0
+                    - self.0 .3 * self.1 .0 * self.3 .2
+                    + self.0 .3 * self.1 .2 * self.3 .0
+                    + self.0 .2 * self.1 .0 * self.3 .3
+                    + self.0 .0 * self.1 .3 * self.3 .2,
+                self.0 .0 * self.1 .2 * self.2 .3
+                    + self.0 .2 * self.1 .3 * self.2 .0
+                    + self.0 .3 * self.1 .0 * self.2 .2
+                    - self.0 .3 * self.1 .2 * self.2 .0
+                    - self.0 .2 * self.1 .0 * self.2 .3
+                    - self.0 .0 * self.1 .3 * self.2 .2,
             ),
             Vec4(
-                self.1.0 * self.2.1 * self.3.3
-                    + self.1.1 * self.2.3 * self.3.0
-                    + self.1.3 * self.2.0 * self.3.1
-                    - self.1.3 * self.2.1 * self.3.0
-                    - self.1.1 * self.2.0 * self.3.3
-                    - self.1.0 * self.2.3 * self.3.1,
-                - self.0.0 * self.2.1 * self.3.3
-                    - self.0.1 * self.2.3 * self.3.0
-                    - self.0.3 * self.2.0 * self.3.1
-                    + self.0.3 * self.2.1 * self.3.0
-                    + self.0.1 * self.2.0 * self.3.3
-                    + self.0.0 * self.2.3 * self.3.1,
-                self.0.0 * self.1.1 * self.3.3
-                    + self.0.1 * self.1.3 * self.3.0
-                    + self.0.3 * self.1.0 * self.3.1
-                    - self.0.3 * self.1.1 * self.3.0
-                    - self.0.1 * self.1.0 * self.3.3
-                    - self.0.0 * self.1.3 * self.3.1,
-                - self.0.0 * self.1.1 * self.2.3
-                    - self.0.1 * self.1.3 * self.2.0
-                    - self.0.3 * self.1.0 * self.2.1
-                    + self.0.3 * self.1.1 * self.2.0
-                    + self.0.1 * self.1.0 * self.2.3
-                    + self.0.0 * self.1.3 * self.2.1,
+                self.1 .0 * self.2 .1 * self.3 .3
+                    + self.1 .1 * self.2 .3 * self.3 .0
+                    + self.1 .3 * self.2 .0 * self.3 .1
+                    - self.1 .3 * self.2 .1 * self.3 .0
+                    - self.1 .1 * self.2 .0 * self.3 .3
+                    - self.1 .0 * self.2 .3 * self.3 .1,
+                -self.0 .0 * self.2 .1 * self.3 .3
+                    - self.0 .1 * self.2 .3 * self.3 .0
+                    - self.0 .3 * self.2 .0 * self.3 .1
+                    + self.0 .3 * self.2 .1 * self.3 .0
+                    + self.0 .1 * self.2 .0 * self.3 .3
+                    + self.0 .0 * self.2 .3 * self.3 .1,
+                self.0 .0 * self.1 .1 * self.3 .3
+                    + self.0 .1 * self.1 .3 * self.3 .0
+                    + self.0 .3 * self.1 .0 * self.3 .1
+                    - self.0 .3 * self.1 .1 * self.3 .0
+                    - self.0 .1 * self.1 .0 * self.3 .3
+                    - self.0 .0 * self.1 .3 * self.3 .1,
+                -self.0 .0 * self.1 .1 * self.2 .3
+                    - self.0 .1 * self.1 .3 * self.2 .0
+                    - self.0 .3 * self.1 .0 * self.2 .1
+                    + self.0 .3 * self.1 .1 * self.2 .0
+                    + self.0 .1 * self.1 .0 * self.2 .3
+                    + self.0 .0 * self.1 .3 * self.2 .1,
             ),
             Vec4(
-                - self.1.0 * self.2.1 * self.3.2
-                    - self.1.1 * self.2.2 * self.3.0
-                    - self.1.2 * self.2.0 * self.3.1
-                    + self.1.2 * self.2.1 * self.3.0
-                    + self.1.1 * self.2.0 * self.3.2
-                    + self.1.0 * self.2.2 * self.3.1,
-                self.0.0 * self.2.1 * self.3.2
-                    + self.0.1 * self.2.2 * self.3.0
-                    + self.0.2 * self.2.0 * self.3.1
-                    - self.0.2 * self.2.1 * self.3.0
-                    - self.0.1 * self.2.0 * self.3.2
-                    - self.0.0 * self.2.2 * self.3.1,
-                - self.0.0 * self.1.1 * self.3.2
-                    - self.0.1 * self.1.2 * self.3.0
-                    - self.0.2 * self.1.0 * self.3.1
-                    + self.0.2 * self.1.1 * self.3.0
-                    + self.0.1 * self.1.0 * self.3.2
-                    + self.0.0 * self.1.2 * self.3.1,
-                self.0.0 * self.1.1 * self.2.2
-                    + self.0.1 * self.1.2 * self.2.0
-                    + self.0.2 * self.1.0 * self.2.1
-                    - self.0.2 * self.1.1 * self.2.0
-                    - self.0.1 * self.1.0 * self.2.2
-                    - self.0.0 * self.1.2 * self.2.1,
+                -self.1 .0 * self.2 .1 * self.3 .2
+                    - self.1 .1 * self.2 .2 * self.3 .0
+                    - self.1 .2 * self.2 .0 * self.3 .1
+                    + self.1 .2 * self.2 .1 * self.3 .0
+                    + self.1 .1 * self.2 .0 * self.3 .2
+                    + self.1 .0 * self.2 .2 * self.3 .1,
+                self.0 .0 * self.2 .1 * self.3 .2
+                    + self.0 .1 * self.2 .2 * self.3 .0
+                    + self.0 .2 * self.2 .0 * self.3 .1
+                    - self.0 .2 * self.2 .1 * self.3 .0
+                    - self.0 .1 * self.2 .0 * self.3 .2
+                    - self.0 .0 * self.2 .2 * self.3 .1,
+                -self.0 .0 * self.1 .1 * self.3 .2
+                    - self.0 .1 * self.1 .2 * self.3 .0
+                    - self.0 .2 * self.1 .0 * self.3 .1
+                    + self.0 .2 * self.1 .1 * self.3 .0
+                    + self.0 .1 * self.1 .0 * self.3 .2
+                    + self.0 .0 * self.1 .2 * self.3 .1,
+                self.0 .0 * self.1 .1 * self.2 .2
+                    + self.0 .1 * self.1 .2 * self.2 .0
+                    + self.0 .2 * self.1 .0 * self.2 .1
+                    - self.0 .2 * self.1 .1 * self.2 .0
+                    - self.0 .1 * self.1 .0 * self.2 .2
+                    - self.0 .0 * self.1 .2 * self.2 .1,
             ),
         ) / d
     }
@@ -795,7 +810,7 @@ mod tests {
         );
         assert_eq!(a.det(), -12.650698);
     }
-    
+
     #[test]
     fn to_quat() {
         let a = Mat4(
@@ -829,7 +844,7 @@ mod tests {
             Vec4(-0.45730653, 0.8757163, -0.14445423, 0.0),
             Vec4(-0.24616218, -0.39888182, 0.8825152, 0.0),
             Vec4(0.9430549, -0.04897247, -0.32761973, 0.0),
-            Vec4(1.2, 1.4, 1.6, 1.0)
+            Vec4(1.2, 1.4, 1.6, 1.0),
         );
         let q = Vec4(0.3229, 0.3371, 0.6181, -0.4537);
         assert_eq!(a.to_quat(), q);
@@ -982,6 +997,12 @@ mod tests {
             Vec4(0.0, 0.0, 0.0, 1.0),
         );
         assert_eq!(a, b);
+
+        // Rotate a non normalized position vector around z axis
+        let v = Vec3(1.2, 0.2, 0.0);
+        let a = Mat4::z_rotation(FRAC_PI_2) * v;
+        let b = Vec3(0.2, -1.2, 0.0);
+        assert_eq!(a, b);
     }
 
     #[test]
@@ -1013,6 +1034,12 @@ mod tests {
             Vec4(0.7950, -0.2771, 0.5395, 0.0),
             Vec4(0.0, 0.0, 0.0, 1.0),
         );
+        assert_eq!(a, b);
+
+        // Rotate a non normalized position vector around z axis
+        let v = Vec3(1.2, 0.2, 0.0);
+        let a = Mat4::axis_rotation(Vec3(0.0, 0.0, 1.0), FRAC_PI_2) * v;
+        let b = Vec3(0.2, -1.2, 0.0);
         assert_eq!(a, b);
     }
 

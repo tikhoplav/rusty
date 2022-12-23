@@ -1,14 +1,16 @@
 pub mod core;
 pub mod state;
 
-use crate::core::{Color, Vec3, Vec4, Mat4};
-use crate::state::{State, Vertex};
-use std::f32::consts::{FRAC_PI_2, FRAC_PI_3};
+use crate::core::{Color, Mat4, Vec3, Vec4};
+use crate::state::{Screen, State, Vertex};
+use std::f32::consts::{PI, FRAC_PI_3};
 use std::sync::Mutex;
 
 // State is stored as a global variable, since it has to be used each update
 // without a reference passed over FFI.
 static STATE: Mutex<State> = Mutex::new(State {
+    screen: Screen(1980.0, 1024.0),
+    camera: Vec3(6.0, -6.0, 12.0),
     view_matrix: Mat4(
         Vec4(1.0, 0.0, 0.0, 0.0),
         Vec4(0.0, 1.0, 0.0, 0.0),
@@ -20,22 +22,25 @@ static STATE: Mutex<State> = Mutex::new(State {
 });
 
 #[no_mangle]
-pub extern "C" fn set_aspect(aspect: f32) {
+pub extern "C" fn set_screen_width(width: u32) {
     let state = &mut *STATE.lock().unwrap();
-    state.view_matrix = (
-        Mat4::perspective(FRAC_PI_3 * 2.0, 1.0 / aspect, 0.01, 100.0)
-        * Mat4::look_at(
-            Vec3(3.0, -3.0, 9.0),
-            Vec3(0.0, 0.0, 0.0),
-            Vec3(0.0, 0.0, 1.0)
-        )
-    )
-        .scale(Vec3(0.05, 0.05, 0.05))
-        .inverse();
+    state.screen.0 = width as f32;
 }
 
 #[no_mangle]
-pub extern "C" fn state_view_data() -> *const Mat4 {
+pub extern "C" fn set_screen_height(height: u32) {
+    let state = &mut *STATE.lock().unwrap();
+    state.screen.1 = height as f32;
+}
+
+#[no_mangle]
+pub extern "C" fn rotate_camera(pixels: i32) {
+    let state = &mut *STATE.lock().unwrap();
+    state.camera = Mat4::z_rotation(PI * (pixels as f32) / state.screen.0) * state.camera;
+}
+
+#[no_mangle]
+pub extern "C" fn state_view_matrix() -> *const Mat4 {
     &(&*STATE.lock().unwrap()).view_matrix
 }
 
@@ -55,39 +60,44 @@ pub extern "C" fn state_len() -> usize {
 pub extern "C" fn gen() {
     let state = &mut *STATE.lock().unwrap();
 
-    state.vertices.push(Vertex(
-        Vec3(0.0, 0.866025404, 0.0),
-        Color(255, 0, 0, 255)
-    ));
 
-    state.vertices.push(Vertex(
-        Vec3(1.0, -0.866025404, 0.0),
-        Color(0, 255, 0, 255),
-    ));
+    state
+        .vertices
+        .push(Vertex(Vec3(-1.0, -1.0, 0.0), Color(0, 0, 255, 255)));
 
-    state.vertices.push(Vertex(
-        Vec3(-1.0, -0.866025404, 0.0),
-        Color(0, 0, 255, 255),
-    ));
+    state
+        .vertices
+        .push(Vertex(Vec3(-1.0, 1.0, 0.0), Color(255, 0, 0, 255)));
+
+    state
+        .vertices
+        .push(Vertex(Vec3(1.0, -1.0, 0.0), Color(0, 255, 0, 255)));
+
+    state
+        .vertices
+        .push(Vertex(Vec3(1.0, -1.0, 0.0), Color(0, 255, 0, 255)));
+
+    state
+        .vertices
+        .push(Vertex(Vec3(-1.0, 1.0, 0.0), Color(255, 0, 0, 255)));
+
+    state
+        .vertices
+        .push(Vertex(Vec3(1.0, 1.0, 0.0), Color(255, 255, 0, 255)));
 }
 
 #[no_mangle]
 pub extern "C" fn update() {
     let state = &mut *STATE.lock().unwrap();
-    let v = &mut state.vertices;
 
-    for (i, vertex) in v.iter_mut().enumerate() {
-        vertex.1 = Vec4(
-            127.0 - 127.0 * ((state.count as f32) / 120.0 + (i as f32) * FRAC_PI_3).cos() as f32,
-            127.0
-                - 127.0
-                    * ((state.count as f32) / 60.0 + FRAC_PI_2 + (i as f32) * FRAC_PI_3).sin()
-                        as f32,
-            127.0 - 127.0 * ((state.count as f32) / 120.0 + (i as f32) * FRAC_PI_3).sin() as f32,
-            255.0,
-        )
-        .into();
-    }
+    state.view_matrix = (Mat4::perspective(
+        FRAC_PI_3 * 2.0,
+        state.screen.1 / state.screen.0,
+        0.1,
+        500.0,
+    ) * Mat4::look_at(state.camera, Vec3(0.0, 0.0, 0.0), Vec3(0.0, 0.0, 1.0)))
+    .scale(Vec3(0.1, 0.1, 0.1))
+    .inverse();
 
     state.count += 1;
 }

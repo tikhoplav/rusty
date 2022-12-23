@@ -19,8 +19,8 @@ impl PartialEq for Vec3 {
 
 impl From<Vec4> for Vec3 {
     #[inline]
-    fn from(vec: Vec4) -> Self {
-        Self(vec.0, vec.1, vec.2)
+    fn from(v: Vec4) -> Self {
+        Self(v.0 / v.3, v.1 / v.3, v.2 / v.3)
     }
 }
 
@@ -172,7 +172,7 @@ mod tests {
     #[test]
     fn from_vec4() {
         let a = Vec4(1.1, 3.4, 3.5, 3.8);
-        let b = Vec3(1.1, 3.4, 3.5);
+        let b = Vec3(0.2895, 0.8947, 0.9211);
         assert_eq!(b, a.into());
     }
 
