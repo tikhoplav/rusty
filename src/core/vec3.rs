@@ -151,7 +151,7 @@ mod tests {
 
     impl Debug for Vec3 {
         fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-            write!(f, "Vec3({}, {}, {})", self.0, self.1, self.2)
+            write!(f, "Vec3({:.4}, {:.4}, {:.4})", self.0, self.1, self.2)
         }
     }
 

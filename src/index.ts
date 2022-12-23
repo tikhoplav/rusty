@@ -7,15 +7,16 @@ const gl = canvas.getContext("webgl2");
 
 const spriteRenderer = function (gl: WebGL2RenderingContext) {
   const vertexShaderSource = `#version 300 es
-uniform vec2 uResolution;
+uniform mat4 uMatrix;
 
-layout (location = 0) in vec3 aPosition;
+layout (location = 0) in vec4 aPosition;
 layout (location = 1) in vec4 AColor;
+
 
 out vec4 vColor;
 
 void main() {
-  gl_Position = vec4(aPosition, 1) * 2.0 / vec4(uResolution, 1, 1);
+  gl_Position = uMatrix * aPosition;
   vColor = AColor;
 }`
 
@@ -49,10 +50,10 @@ void main() {
   gl.vertexAttribPointer(1, 4, gl.UNSIGNED_BYTE, true, 16, 12)
   gl.enableVertexAttribArray(1)
 
-  function resize(width: number, height: number): void {    
+  function resize(viewMatrix: Float32Array): void {    
     gl.useProgram(program)
-    gl.viewport(0, 0, width, height)
-    gl.uniform2f(gl.getUniformLocation(program, "uResolution"), width, height)
+    // gl.viewport(0, 0, width, height)
+    gl.uniformMatrix4fv(gl.getUniformLocation(program, "uMatrix"), false, viewMatrix)
   }
 
   function update(buffer: ArrayBuffer): void {
@@ -69,7 +70,8 @@ loadModule("rusty.wasm")
   .then(rusty => {
 
     rusty.initState()
-    const data = rusty.getVerticesData();
+    const view = rusty.viewData;
+    const data = rusty.verticesData;
 
     const { resize, update } = spriteRenderer(gl)
 
@@ -77,7 +79,9 @@ loadModule("rusty.wasm")
       const { innerWidth: width, innerHeight: height} = window
       gl.canvas.width = width
       gl.canvas.height = height
-      resize(width, height)
+      gl.viewport(0, 0, width, height)
+      rusty.aspectRatio = width / height;
+      resize(view)
     }
 
     const render = () => {

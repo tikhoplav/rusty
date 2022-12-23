@@ -50,7 +50,15 @@ export class Module {
     this.ffi.update()
   }
 
-  getVerticesData(): ArrayBuffer {
+  set aspectRatio(aspect: number) {
+    this.ffi.set_aspect(aspect)
+  }
+
+  get viewData(): Float32Array {
+    return new Float32Array(this.memory.buffer, this.ffi.state_view_data(), 16)
+  }
+
+  get verticesData(): ArrayBuffer {
     return new Uint8Array(this.memory.buffer, this.ffi.state_data(), this.ffi.state_len() * 16)
   }
 };

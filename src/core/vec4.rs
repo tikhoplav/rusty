@@ -118,7 +118,7 @@ impl Vec4 {
     /// Length of the vector
     #[inline]
     pub fn len(self) -> f32 {
-        self.len2().sqrt()
+        1.0 / self.len2().isqrt()
     }
 
     /// Normalize vector turing it's length to 1
@@ -136,12 +136,12 @@ impl Vec4 {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::Vec4;
+    use crate::core::{Approx, Vec4};
     use std::fmt::{Debug, Formatter, Result};
 
     impl Debug for Vec4 {
         fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-            write!(f, "Vec4({}, {}, {}, {})", self.0, self.1, self.2, self.3)
+            write!(f, "Vec4({:.4}, {:.4}, {:.4}, {:.4})", self.0, self.1, self.2, self.3)
         }
     }
 
@@ -200,7 +200,7 @@ mod tests {
     #[test]
     fn len() {
         let a = Vec4(3.0, 4.0, 0.0, 0.0);
-        assert_eq!(5.0, a.len());
+        assert_eq!(true, a.len().approx_eq(5.0));
     }
 
     #[test]
