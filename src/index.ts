@@ -24,10 +24,10 @@ void main() {
 precision highp float;
 
 in vec4 vColor;
-out vec4 diffuseColor;
+out vec4 fragColor;
 
 void main() {
-  diffuseColor = vColor;
+  fragColor = vColor;
 }`
 
   const program = makeShader(gl, vertexShaderSource, fragmentShaderSource)

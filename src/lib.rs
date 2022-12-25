@@ -1,10 +1,11 @@
 pub mod core;
 pub mod state;
 
-use crate::core::{Color, Mat4, Vec3, Vec4};
-use crate::state::{Screen, State, Vertex};
 use std::f32::consts::{PI, FRAC_PI_3};
 use std::sync::Mutex;
+use crate::state::{Screen, State, Vertex};
+use crate::core::{Color, Mat4, Vec3, Vec4};
+use std::mem;
 
 // State is stored as a global variable, since it has to be used each update
 // without a reference passed over FFI.
@@ -53,7 +54,7 @@ pub extern "C" fn state_data() -> *const Vertex {
 #[no_mangle]
 pub extern "C" fn state_len() -> usize {
     let v = &(&*STATE.lock().unwrap()).vertices;
-    <Vec<Vertex> as AsRef<Vec<Vertex>>>::as_ref(v).len()
+    <Vec<Vertex> as AsRef<Vec<Vertex>>>::as_ref(v).len() * mem::size_of::<Vertex>()
 }
 
 #[no_mangle]
@@ -94,9 +95,9 @@ pub extern "C" fn update() {
         FRAC_PI_3 * 2.0,
         state.screen.1 / state.screen.0,
         0.1,
-        500.0,
-    ) * Mat4::look_at(state.camera, Vec3(0.0, 0.0, 0.0), Vec3(0.0, 0.0, 1.0)))
-    .scale(Vec3(0.1, 0.1, 0.1))
+        100.0,
+    ) * Mat4::look_at(state.camera, Vec3(0.0, 0.0, 1.0), Vec3(0.0, 0.0, 1.0)))
+    .scale(Vec3(0.3, 0.3, 0.3))
     .inverse();
 
     state.count += 1;
