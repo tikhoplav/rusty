@@ -149,6 +149,11 @@ impl Div<f32> for Mat4 {
 
 impl Mat4 {
     #[inline]
+    pub fn new() -> Self {
+        Self::identity()
+    }
+
+    #[inline]
     pub fn det(self) -> f32 {
         self.0 .0 * self.1 .1 * self.2 .2 * self.3 .3
             + self.0 .0 * self.1 .2 * self.2 .3 * self.3 .1

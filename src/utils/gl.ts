@@ -3,7 +3,11 @@
  * for vertex and fragment shaders. Throws exception in case
  * if shader can't be compiled.
  */
- export function makeShader(gl: WebGL2RenderingContext, vsSource: string, fsSource: string): WebGLProgram {
+export function makeShader(
+  gl: WebGL2RenderingContext,
+  vsSource: string,
+  fsSource: string
+): WebGLProgram {
   const vs = gl.createShader(gl.VERTEX_SHADER)
   const fs = gl.createShader(gl.FRAGMENT_SHADER)
   const prog = gl.createProgram()
@@ -18,7 +22,11 @@
   gl.linkProgram(prog)
 
   if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-    const msg = `Program link failed:\n${gl.getProgramInfoLog(prog)}\n${gl.getShaderInfoLog(vs)}\n${gl.getShaderInfoLog(fs)}`
+    const msg = `Program link failed:\n${
+      gl.getProgramInfoLog(prog)
+    }\n${
+      gl.getShaderInfoLog(vs)
+    }\n${gl.getShaderInfoLog(fs)}`
     gl.deleteProgram(prog)
     throw new Error(msg)
   }

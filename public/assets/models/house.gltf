@@ -1,0 +1,105 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v3.4.50",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "Cube"
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "Cube",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "COLOR_0" : 0,
+                        "POSITION" : 1,
+                        "NORMAL" : 2
+                    },
+                    "indices" : 3
+                }
+            ]
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5123,
+            "count" : 648,
+            "normalized" : true,
+            "type" : "VEC4"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 648,
+            "max" : [
+                0.9077314138412476,
+                0.7904093265533447,
+                1.5863535404205322
+            ],
+            "min" : [
+                -0.9008057713508606,
+                -0.8372178077697754,
+                -0.011674292385578156
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 648,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5123,
+            "count" : 987,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 5184,
+            "byteOffset" : 0,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 7776,
+            "byteOffset" : 5184,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 7776,
+            "byteOffset" : 12960,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1974,
+            "byteOffset" : 20736,
+            "target" : 34963
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 22712,
+            "uri" : "house.bin"
+        }
+    ]
+}

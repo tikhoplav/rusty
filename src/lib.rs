@@ -11,7 +11,7 @@ use std::mem;
 // without a reference passed over FFI.
 static STATE: Mutex<State> = Mutex::new(State {
     screen: Screen(1980.0, 1024.0),
-    camera: Vec3(6.0, -6.0, 12.0),
+    camera: Vec3(6.0, -6.0, 9.0),
     view_matrix: Mat4(
         Vec4(1.0, 0.0, 0.0, 0.0),
         Vec4(0.0, 1.0, 0.0, 0.0),
@@ -61,30 +61,14 @@ pub extern "C" fn state_len() -> usize {
 pub extern "C" fn gen() {
     let state = &mut *STATE.lock().unwrap();
 
-
-    state
-        .vertices
-        .push(Vertex(Vec3(-1.0, -1.0, 0.0), Color(0, 0, 255, 255)));
-
-    state
-        .vertices
-        .push(Vertex(Vec3(-1.0, 1.0, 0.0), Color(255, 0, 0, 255)));
-
-    state
-        .vertices
-        .push(Vertex(Vec3(1.0, -1.0, 0.0), Color(0, 255, 0, 255)));
-
-    state
-        .vertices
-        .push(Vertex(Vec3(1.0, -1.0, 0.0), Color(0, 255, 0, 255)));
-
-    state
-        .vertices
-        .push(Vertex(Vec3(-1.0, 1.0, 0.0), Color(255, 0, 0, 255)));
-
-    state
-        .vertices
-        .push(Vertex(Vec3(1.0, 1.0, 0.0), Color(255, 255, 0, 255)));
+    state.vertices.push(Vertex(Vec3(0.5, -0.5, 1.0), Color(255, 255, 255, 255)));
+    state.vertices.push(Vertex(Vec3(0.5, -0.5, 0.0), Color(255, 255, 255, 255)));
+    state.vertices.push(Vertex(Vec3(0.5, -0.5, 0.0), Color(255, 255, 255, 255)));
+    state.vertices.push(Vertex(Vec3(0.5, -0.5, 0.0), Color(255, 255, 255, 255)));
+    state.vertices.push(Vertex(Vec3(-0.5, 0.5, 1.0), Color(255, 255, 255, 255)));
+    state.vertices.push(Vertex(Vec3(-0.5, 0.5, 1.0), Color(255, 255, 255, 255)));
+    state.vertices.push(Vertex(Vec3(-0.5, 0.5, 1.0), Color(255, 255, 255, 255)));
+    state.vertices.push(Vertex(Vec3(-0.5, 0.5, 0.0), Color(255, 255, 255, 255)));
 }
 
 #[no_mangle]
@@ -96,8 +80,8 @@ pub extern "C" fn update() {
         state.screen.1 / state.screen.0,
         0.1,
         100.0,
-    ) * Mat4::look_at(state.camera, Vec3(0.0, 0.0, 1.0), Vec3(0.0, 0.0, 1.0)))
-    .scale(Vec3(0.3, 0.3, 0.3))
+    ) * Mat4::look_at(state.camera, Vec3(0.0, 0.0, 0.5), Vec3(0.0, 0.0, 1.0)))
+    .scale(Vec3(0.06, 0.06, 0.06))
     .inverse();
 
     state.count += 1;

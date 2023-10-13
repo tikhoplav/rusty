@@ -1,0 +1,131 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v3.4.50",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "tris"
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "tris",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "COLOR_0" : 0,
+                        "POSITION" : 1,
+                        "TEXCOORD_0" : 2,
+                        "NORMAL" : 3,
+                        "TANGENT" : 4
+                    },
+                    "indices" : 5
+                }
+            ]
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5123,
+            "count" : 9,
+            "normalized" : true,
+            "type" : "VEC4"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 9,
+            "max" : [
+                1,
+                1,
+                1
+            ],
+            "min" : [
+                0,
+                0,
+                0
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 9,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5126,
+            "count" : 9,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 4,
+            "componentType" : 5126,
+            "count" : 9,
+            "type" : "VEC4"
+        },
+        {
+            "bufferView" : 5,
+            "componentType" : 5123,
+            "count" : 9,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 72,
+            "byteOffset" : 0,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 108,
+            "byteOffset" : 72,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 72,
+            "byteOffset" : 180,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 108,
+            "byteOffset" : 252,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 144,
+            "byteOffset" : 360,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 18,
+            "byteOffset" : 504,
+            "target" : 34963
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 524,
+            "uri" : "prism.bin"
+        }
+    ]
+}
